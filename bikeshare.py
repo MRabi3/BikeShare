@@ -54,7 +54,7 @@ def get_filters():
             continue
 
     print('-'*40)
-    return city, month, day
+    return city.lower(), month.lower(), day.lower()
 
 
 def load_data(city, month, day):
@@ -140,13 +140,17 @@ def station_stats(df):
     start_time = time.time()
 
     # TO DO: display most commonly used start station
-    start_station = df['Start Station'].mode()[0]
-    data_output['common start_station']=start_station
-    print("most commonly used start station is {}".format(start_station))
+    #Check if the column exists in file
+    if 'Start Station' in df.columns:
+        start_station = df['Start Station'].mode()[0]
+        data_output['common start_station']=start_station
+        print("most commonly used start station is {}".format(start_station))
+    
     # TO DO: display most commonly used end station
-    end_station = df['End Station'].mode()[0]
-    data_output['common end_station']=end_station
-    print("most commonly used end station is {}".format(end_station))
+    if 'End Station' in df.columns:
+        end_station = df['End Station'].mode()[0]
+        data_output['common end_station']=end_station
+        print("most commonly used end station is {}".format(end_station))
 
     # TO DO: display most frequent combination of start station and end station trip
     #start_and_end_st = df[['Start Station','End Station']].value_counts()
@@ -157,9 +161,11 @@ def station_stats(df):
     print(start_and_end_st[[0,0]]);
     
     '''
-    start_and_end_st =(df['Start Station'] + ' and ' + df['End Station']).mode()[0]
-    data_output['common start_and_end_st']=start_and_end_st
-    print('Most frequesnt start and end stations are {}'.format(start_and_end_st))
+    if 'Start Station' in df.columns and 'End Station' in df.columns:
+        start_and_end_st =(df['Start Station'] + ' and ' + df['End Station']).mode()[0]
+        data_output['common start_and_end_station']=start_and_end_st
+        print('Most frequesnt start and end stations are {}'.format(start_and_end_st))
+
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
 
@@ -170,14 +176,17 @@ def trip_duration_stats(df):
     print('\nCalculating Trip Duration...\n')
     start_time = time.time()
 
-    # TO DO: display total travel time
-    total_travel_time = df['Trip Duration'].sum().sum()
-    data_output['total_travel_time']=total_travel_time    
-    print("The total travel time is {}.".format(Helper.convertSeconds(total_travel_time)))
-    # TO DO: display mean travel time
-    mean_travel_time = df['Trip Duration'].mean()
-    data_output['mean_travel_time']=mean_travel_time
-    print("The mean travel time is {}.".format(Helper.convertSeconds(mean_travel_time)))
+    
+    if 'Trip Duration' in df.columns:
+        # TO DO: display total travel time
+        total_travel_time = df['Trip Duration'].sum().sum()
+        data_output['total_travel_time']=total_travel_time    
+        print("The total travel time is {}.".format(Helper.convertSeconds(total_travel_time)))
+    
+        # TO DO: display mean travel time
+        mean_travel_time = df['Trip Duration'].mean()
+        data_output['mean_travel_time']=mean_travel_time
+        print("The mean travel time is {}.".format(Helper.convertSeconds(mean_travel_time)))
 
 
     print("\nThis took %s seconds." % (time.time() - start_time))
@@ -191,36 +200,44 @@ def user_stats(df):
     start_time = time.time()
 
     # TO DO: Display counts of user types
-    user_types_dict=dict()
-    print("Number of users per user type is")
-    user_types =df['User Type'].value_counts()
-    for index, value in user_types.items():
-        user_types_dict[index]=value
-        print(f"User Type : {index}, Count : {value} users")
-    data_output["User Types"]=user_types_dict
+    if 'User Type' in df.columns:
+        user_types_dict=dict()
+        print("Number of users per user type is")
+        user_types =df['User Type'].value_counts()
+        for index, value in user_types.items():
+            user_types_dict[index]=value
+            print(f"User Type : {index}, Count : {value} users")
+        data_output["User Types"]=user_types_dict
 
     # TO DO: Display counts of gender
-    gender_dict=dict()
-    print("Number of users per gender is")
-    user_types =df['Gender'].value_counts()
-    for index, value in user_types.items():
-        gender_dict[index]=value
-        print(f"{index} : {value}")
-    data_output["Gender"]=gender_dict
+    if 'Gender' in df.columns:
+        gender_dict=dict()
+        print("Number of users per gender is")
+        user_types =df['Gender'].value_counts()
+        for index, value in user_types.items():
+            gender_dict[index]=value
+            print(f"{index} : {value}")
+        data_output["Gender"]=gender_dict
 
 
     # TO DO: Display earliest, most recent, and most common year of birth
-    #Clean Data
-    year_of_birth =df['Birth Year'].dropna()
-    earliest_yofb =int(year_of_birth.unique().min())
-    data_output['Earliest year of birth']=earliest_yofb
-    print("Earliest year of birth is {}".format(earliest_yofb))
-    most_recent_yofb=int(year_of_birth.unique().max())
-    data_output['most recent year of birth']=most_recent_yofb
-    print("Earliest year of birth is {}".format(most_recent_yofb))
-    comon_yofb=int(year_of_birth.mode())
-    data_output['comon year of birth']=comon_yofb
-    print("Common year of birth is {}".format(comon_yofb))
+    
+    '''
+    Clean Data:
+        drop the NA values to calculate the correct mean.
+    
+    '''
+    if 'Birth Year' in df.columns:
+        year_of_birth =df['Birth Year'].dropna()
+        earliest_yofb =int(year_of_birth.unique().min())
+        data_output['Earliest year of birth']=earliest_yofb
+        print("Earliest year of birth is {}".format(earliest_yofb))
+        most_recent_yofb=int(year_of_birth.unique().max())
+        data_output['most recent year of birth']=most_recent_yofb
+        print("Earliest year of birth is {}".format(most_recent_yofb))
+        comon_yofb=int(year_of_birth.mode())
+        data_output['comon year of birth']=comon_yofb
+        print("Common year of birth is {}".format(comon_yofb))
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -252,7 +269,9 @@ def main():
         
         city, month, day = get_filters()
         df = load_data(city, month, day)
-        
+        if df.shape[0]==0:
+            "There is no data for the filters you choose, please choose another filters"
+            continue        
         time_stats(df)
         station_stats(df)
         trip_duration_stats(df)
