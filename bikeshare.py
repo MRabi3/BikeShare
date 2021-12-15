@@ -270,7 +270,7 @@ def main():
         city, month, day = get_filters()
         df = load_data(city, month, day)
         if df.shape[0]==0:
-            "There is no data for the filters you choose, please choose another filters"
+            print("There is no data for the filters you choose, please choose another filters")
             continue        
         time_stats(df)
         station_stats(df)
